@@ -1,0 +1,93 @@
+
+import os,sys,json,re
+import datetime, time
+#from datetime import date
+#from datetime import datetime
+#import time
+
+list=[]
+dict={}
+dict1={}
+
+def licetest():
+    with open("test.json") as f:
+        for line in f:
+            line=line.strip()
+            list.append(line)
+            #print list
+        return list
+
+
+def getexprirydate(test):
+    for item in test:
+        if "expiry" in item and "_id" in item:
+            cid=item.split("_id")
+            cid= cid[1].split("customerId")
+            cid=(''.join(cid[0]))
+            cid=(cid.split('"'))
+            #print cid[2]
+            expdate=item.split("expiry")
+            expdate=(''.join(expdate[1]))
+            expdate=(expdate.split('"'))
+            #print expdate[2]
+            dict[cid[2]]=expdate[2]
+            #print dict
+    return dict
+
+def convertdatetoseconds(dict):
+    for key in dict:
+        #print dict[key]
+        date1=dict[key].split('-')
+        #print date1
+        year=int(date1[2])
+        month=int(date1[1])
+        date=int(date1[0])
+        #print year , month , date
+        t = datetime.datetime(year,month,date,0, 0)
+        sec= time.mktime(t.timetuple())
+        dict1[key]=sec
+        #print dict1
+    return dict1
+
+def comparedate(dict1):
+    today=datetime.date.today().strftime("%d-%m-%y")
+    todaydate=today.split('-')
+    year=int(todaydate[2])
+    mnth=int(todaydate[1])
+    curdate=int(todaydate[0])
+    t = datetime.datetime(year,mnth,curdate,0, 0)
+    curdatesec= time.mktime(t.timetuple())
+    for key in dict1:
+        #print dict1[key]
+        result=dict1[key]-curdatesec
+        print result
+        dict2[key]=result
+    return dict2
+
+
+def convertsecondstodays(dict2):
+
+    for key in dict2:
+        #secs=dict2[key]
+        days = dict2[key]//86400
+        hours = (dict2[key] - days*86400)//3600
+        minutes = (dict2[key] - days*86400 - hours*3600)//60
+        seconds = dict2[key] - days*86400 - hours*3600 - minutes*60
+        result = ("{}".format(days))
+        dict3[key]=result
+        #if int(15)=result:
+        #    print ""
+    return dict3  
+
+dict2={}
+dict3={}
+test=licetest()
+dict=getexprirydate(test)
+#print dict
+dict1=convertdatetoseconds(dict)
+#print dict1
+print "------------------------------------------------------------------"
+dict2=comparedate(dict1)
+#print dict2
+dict3=convertsecondstodays(dict2)
+print dict3
